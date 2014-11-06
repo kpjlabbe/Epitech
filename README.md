@@ -1,4 +1,4 @@
 Epitech
 =======
 
-Projects made during my studies at Epitech
+Some projects made during my studies at Epitech
