@@ -1,0 +1,16 @@
+; ------------
+; file.avm
+; ------------
+
+push int32(10)
+push int32(42)
+add
+push int8(55)
+add
+dump
+; haha
+
+;deodkede$
+exit
+dsadasdas
+;;

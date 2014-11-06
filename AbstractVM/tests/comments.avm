@@ -1,0 +1,8 @@
+; comments.avm
+
+push int32(452)
+; deidjed
+push int16(4)
+mul			; deodjed
+dump
+exit

@@ -1,0 +1,12 @@
+push int32(42)
+push int16(42)
+add
+push int32(100)
+sub
+push double(42.569)
+mul
+push int32(445559)
+div
+assert double(654.272)
+dump
+exit
