@@ -1,0 +1,236 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+import sys
+import os
+import linecache
+import numpy as np
+import random
+
+
+class Parser:
+    '''
+    classe parser pseudo ini
+    '''
+
+    sections = {}
+    current_section = ""
+    names = []
+
+    def checkExists(self, elems, search):
+
+        i = 0
+        for elem in elems:
+            if elem[0] == search:
+                return i
+            i += 1
+        return -1
+
+    def parseLine(self, line):
+        
+        name1, sep1, line = str.partition(line, ' est ami')
+        dump, sep2, name2 = str.partition(line, ' avec ')
+
+        position_name1 = self.checkExists(self.names, name1)
+        if (position_name1 == -1):
+            if (dump == "e"):
+                self.names.append([name1, "Femme", [name2]])
+            else:
+                self.names.append([name1, "Homme", [name2]])
+        else:
+            self.names[position_name1][2].append(name2)
+            if (dump == "e"):
+                self.names[position_name1][1] = "Femme"
+            else:
+                self.names[position_name1][1] = "Homme"
+
+        if (self.checkExists(self.names, name2) == -1):
+            self.names.append([name2, "Inconnu", []])
+
+    def parse_file(self, path):
+
+        i = 1
+        
+        while (linecache.getline(path, i)):
+            get_line = linecache.getline(path, i).rstrip("\n")
+            self.parseLine(get_line)
+            i += 1
+        return self
+
+    def sortNames(self):
+        
+        self.names.sort()
+
+    def getMatrix(self):
+
+        mat = np.zeros((len(self.names), len(self.names)))
+        index1 = 0
+        for name, sex, connections in self.names:
+            for friend in connections:
+                index2 = self.checkExists(self.names, friend)
+                mat[index1, index2] = 1
+                mat[index2, index1] = 1
+            index1 += 1
+        return (mat)
+# end of Parser
+
+def matrixDisplay(mat):
+    mat = np.array(mat)
+    for line in mat:
+        print "\t",
+        for cell in line:
+            print int(cell), "",
+        print ""
+
+def floydWarshall(graph):
+    distance = np.copy(graph)
+    for i in range(len(graph)):
+        for j in range(len(graph)):
+            if distance[i,j] == 0 and i != j:
+                distance[i,j] = 100000000.
+    for k in range(len(graph)):
+        for i in range(len(graph)):
+            for j in range(len(graph)):
+                distance[i, j] = min(distance[i, j], distance[i, k] + distance[k, j])
+    return (distance)
+
+def getSexFormat(sexe):
+
+    if sexe == "Homme":
+        return "(homme)"
+    if sexe == "Femme":
+        return "(femme)"
+    return "(sexe inconnu)"
+
+def getLowestPositive(vect):
+    vect.sort()
+    i = 0
+    for i in range(len(vect)):
+        if vect[i] > 0:
+            return (i)
+    return (0)
+
+def dummyDegree(mat):
+    result = np.zeros((len(mat), len(mat)));
+    distances = []
+    distance = np.zeros((len(mat),len(mat),len(mat)))
+
+    for i in range(len(mat)):
+        distance[i] = mat**(i+1)
+    for i in range(len(mat)):
+        for j in range(len(mat)):
+            if i == j:
+                continue
+            positives = []
+            for k in range (len(mat)):
+                value = distance[k][i,j]
+                # if value > 0:
+                positives.append(value)
+            result[i,j] = getLowestPositive(positives[:])
+    return result
+
+def getIncMatrix(adj):
+    arcs = np.sum(adj) / 2
+    inc = np.zeros((len(adj), arcs ))
+    arc = 0
+    for done in range(len(adj)):
+        for i in range(done, len(adj)):
+            if (int(adj[done, i]) == 1):
+                inc[done][arc] += 1
+                inc[i][arc] += 1
+                arc += 1
+    return inc
+
+    # for i in range(len(mat)):
+    #     for j in range(len(mat)):
+    #         print distances[:][i][j]
+    print "======= end of test ======="
+    return result
+
+def getPerson(connection, name, mat):
+    for i in range(len(mat)):
+        if (name == mat[i][0]):
+            mat[i][3].append(connection)
+
+
+if __name__ == "__main__":
+    '''
+    main de test
+    '''
+
+
+    if len(sys.argv) != 2:
+        print "Missing argument !"
+        exit()
+    parser = Parser()
+    parser.parse_file(sys.argv[1]) 
+    parser.sortNames()
+    mat = parser.getMatrix()
+    # print "Personnes concernées :"
+    # for nom, sexe, con in parser.names:
+    #     print "\t", nom, getSexFormat(sexe)
+
+    for elem in parser.names:
+        elem.append([])
+    print "Personnes concernées :"
+    for person in parser.names:
+        for connect in person[2]:
+            getPerson(person[0], connect, parser.names)
+    for person in parser.names:
+        print "\n\t", person[0], getSexFormat(person[1])
+        for connection in person[2] + person[3]:
+            print "\t | ", connection
+        print "\t |  ("+str(len(person[2] + person[3])), "amis)" if len(person[2] + person[3]) > 1 else "ami)"
+        print "\t \\________________"
+
+    mat = np.matrix(mat)
+    print "\nMatrice d'adjacences"
+    matrixDisplay(mat)
+    print "\nMatrice G2"
+    matrixDisplay(mat**2)
+    print "\nMatrice G3"
+    matrixDisplay(mat**3)
+    
+
+    mat_degre = floydWarshall(mat)
+    # mat_degre = dummyDegree(mat)
+    print "\nDegrés de séparation"
+    matrixDisplay(mat_degre)
+
+    # mat_degre = floydWarshall(mat)
+    mat_degre = dummyDegree(mat)
+    print "\nDegrés de séparation (custom)"
+    matrixDisplay(mat_degre)
+
+    print "\nMatrice d'incidence"
+    mat_inc = getIncMatrix(mat)
+    matrixDisplay(mat_inc)
+
+    print "\nMatrice laplacienne"
+    laplace = np.zeros((len(mat), len(mat)))    
+    for i in range (len(mat)):
+        laplace[i, i] = np.sum(mat[i])
+    matrixDisplay(laplace)
+
+    new = []
+    for elem in parser.names:
+        new.append((elem[0], elem[2]))
+
+    num = str(random.randrange(1, 1000))
+
+    dotfile = "dotfile_"+ num + ".dot"
+
+    filename = open(dotfile, 'w')
+
+    filename.write("graph G\n{\n")
+    for elem in new:
+        for connect in elem[1]:
+            name1 = elem[0].replace(" ", "_")
+            name2 = connect.replace(" ", "_")
+            filename.write("        " + name1 + " -- " + name2 + ";\n")
+    filename.write("}\n")
+    filename.close()
+
+    image = "image_"+ num + ".png"
+    os.system("dot -Tpng ./"+dotfile+ " -o ./" + image)
+    os.system("display "+ image)

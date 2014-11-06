@@ -1,0 +1,3 @@
+# ceci est un commentaire
+setalias ls="ls --color=always"
+setalias ne="emacs -nw"

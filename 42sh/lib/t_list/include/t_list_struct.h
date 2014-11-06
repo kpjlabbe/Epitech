@@ -1,0 +1,21 @@
+/*
+** struct.h for lib in /media/data/all/projects/epitech/42sh/lib/t_list/include
+** 
+** Made by kevin labbe
+** Login   <labbe_k@epitech.net>
+** 
+** Started on  Wed Mar  6 17:53:01 2013 kevin labbe
+** Last update Wed Apr 24 19:55:24 2013 kevin labbe
+*/
+
+#ifndef STRUCT_T_LIST
+#define STRUCT_T_LIST
+
+typedef struct		s_list
+{
+  void			*data;
+  struct s_list		*prev;
+  struct s_list		*next;
+}			t_list;
+
+#endif /* STRUCT_T_LIST */

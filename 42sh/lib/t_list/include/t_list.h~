@@ -1,0 +1,28 @@
+/*
+** proto.h for lib in /media/data/all/projects/epitech/42sh/lib/t_list/include
+** 
+** Made by kevin labbe
+** Login   <labbe_k@epitech.net>
+** 
+** Started on  Wed Mar  6 17:55:26 2013 kevin labbe
+** Last update Wed Apr 24 18:57:47 2013 kevin labbe
+*/
+
+#ifndef T_LIST
+#define T_LIST
+
+#include "t_list_struct.h"
+
+typedef void	(t_fct_list)(t_list *);
+
+void		list_create(t_list **list);
+int		list_ins_before(t_list *elt, void *data);
+int		list_ins_after(t_list *elt, void *data);
+t_list		*list_get_elt(t_list *list, int pos);
+int		list_get_size(t_list *list);
+int		list_del_elt(t_list *elt, t_fct_list *fct);
+int		list_del_nth_elt(t_list *list, int pos, t_fct_list *fct);
+int		list_del(t_list *list, t_fct_list *fct);
+int		list_foreach(t_list *list, t_fct_list *fct);
+
+#endif /* T_LIST */
