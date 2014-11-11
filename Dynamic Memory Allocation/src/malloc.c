@@ -10,23 +10,9 @@
 
 #include "proto.h"
 
-static void		*split(t_header *header, t_block *block, size_t size)
-{
-  size_t		freeSize;
-  t_block		*freeBlock;
-
-  block->flag = STATE_ACTIVE;
-  freeBlock = (t_block *)((char *)block + block->size + sizeof(t_block) + 4);
-  freeSize = block->size - size - sizeof(t_block);
-  create_block_at_address(block, freeBlock, freeSize, STATE_FREE);
-  pthread_mutex_unlock(&header->lock[0]);
-  return (block + sizeof(t_block));
-}
-
 void			*malloc(size_t size)
 {
   t_header		*header;
-  t_block		*block;
   unsigned int		i;
 
   if ((int) size < 0)
